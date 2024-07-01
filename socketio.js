@@ -2,7 +2,7 @@
  * @Author: BINGWU
  * @Date: 2024-06-27 14:27:10
  * @LastEditors: hujiacheng hujiacheng@iipcloud.com
- * @LastEditTime: 2024-06-27 18:10:17
+ * @LastEditTime: 2024-07-01 17:31:33
  * @FilePath: \print-serve\socketio.js
  * @Describe: 
  * @Mark: ૮(˶ᵔ ᵕ ᵔ˶)ა
@@ -26,7 +26,17 @@ const io = socketIo(server, {
 app.use(cors())
 const port = process.env.PORT || 3000
 
+
 // 存储客户端的连接和连接状态
+/**
+ * key: 客户端id
+ * value: {
+    socket: socket.io对象
+    connected: 客户端是否在线
+ *}
+ * 
+ * 
+ */
 let clients = {}
 
 app.get("/getStatus", express.json(), (req, res) => {
@@ -83,7 +93,7 @@ io.on('connection', (socket) => {
     const targetClient = clients[clientId]
     if (targetClient) {
       if (targetClient.connected) {
-        // 收到客户端的消息后再返回给客户端
+        // 收到客户端的消息后再返回给对应的客户端
         targetClient.socket.emit('message', msg)
       }
     }
