@@ -2,7 +2,7 @@
  * @Author: BINGWU
  * @Date: 2024-06-27 11:27:11
  * @LastEditors: hujiacheng hujiacheng@iipcloud.com
- * @LastEditTime: 2024-06-27 14:03:57
+ * @LastEditTime: 2024-07-01 17:05:52
  * @FilePath: \print-serve\websocket.js
  * @Describe: 
  * @Mark: ૮(˶ᵔ ᵕ ᵔ˶)ა
@@ -10,7 +10,7 @@
 const express = require('express') //引用框架
 const app = express() //创建服务
 const WebSocket = require("ws")
-const port = 8088 //项目启动端口
+const port = 8088 //项目启动端口.
 const wss = new WebSocket.Server({ port: 3200 })
 
 console.log("WebSocket服务运行在http://localhost:3200/")
