@@ -2,7 +2,7 @@
  * @Author: BINGWU
  * @Date: 2024-06-27 14:27:10
  * @LastEditors: hujiacheng hujiacheng@iipcloud.com
- * @LastEditTime: 2024-07-01 17:31:33
+ * @LastEditTime: 2024-07-02 09:42:10
  * @FilePath: \print-serve\socketio.js
  * @Describe: 
  * @Mark: ૮(˶ᵔ ᵕ ᵔ˶)ა
@@ -29,8 +29,8 @@ const port = process.env.PORT || 3000
 
 // 存储客户端的连接和连接状态
 /**
- * key: 客户端id
- * value: {
+ * key: clientId
+ * key: {
     socket: socket.io对象
     connected: 客户端是否在线
  *}
@@ -45,7 +45,8 @@ app.get("/getStatus", express.json(), (req, res) => {
     const client = clients[clientId]
     data.push({
       clientId,
-      connected: client.connected
+      connected: client.connected,
+      socketId: client.socket.id
     })
   }
   res.json({
@@ -54,14 +55,14 @@ app.get("/getStatus", express.json(), (req, res) => {
 })
 
 app.get("/startPrint", express.json(), (req, res) => {
-  const { clientId, name } = req.query // 存储用户参数
+  const { clientId, printData } = req.query // 存储用户参数
   const targetClient = clients[clientId]
   // 如果客户端存在
   if (targetClient) {
     // 且客户端在线
     if (targetClient.connected) {
       // 收到客户端的消息后再返回给客户端
-      targetClient.socket.emit('print', {name})
+      targetClient.socket.emit('print', {printData})
       res.send({ message: "参数已接收" })
     } else {
       res.send({ message: "打印机离线" })
@@ -74,38 +75,25 @@ app.get("/startPrint", express.json(), (req, res) => {
 
 io.on('connection', (socket) => {
 
-  console.log('A user connected:', socket.id)
+  console.log('一台客户端端连接上了服务端,socket的id是:', socket.id)
 
   // 监听客户端在register事件发送标识
   socket.on('register', (clientId) => {
     clients[clientId] = {
       socket: socket,
-      connected: true
+      connected: true,
     }
-    console.log(`Client registered: ${clientId}`)
+    console.log(`连接上服务端的客户端的id是: ${clientId}`)
   })
 
-
-  // 接收客户端发送的消息message
-  socket.on('message', ({ msg, clientId }) => {
-    console.log('message: ' + msg)
-    console.log('clientId: ' + clientId)
-    const targetClient = clients[clientId]
-    if (targetClient) {
-      if (targetClient.connected) {
-        // 收到客户端的消息后再返回给对应的客户端
-        targetClient.socket.emit('message', msg)
-      }
-    }
-  })
 
   // 客户端断开连接
   socket.on('disconnect', () => {
-    console.log('A user disconnected:', socket.id)
+    console.log('一台客户端端断开了服务端,socket的id是:', socket.id)
     for (let clientId in clients) {
       if (clients[clientId].socket.id === socket.id) {
         clients[clientId].connected = false
-        console.log(`Client ${clientId} disconnected`)
+        console.log(`断开服务端连接的客户端的id是 ${clientId}`)
         break
       }
     }
@@ -113,10 +101,11 @@ io.on('connection', (socket) => {
 
   // 监听客户端重新连接
   socket.on('reconnect', () => {
+    console.log('一台客户端端重新连接了服务端,socket的id是:', socket.id)
     for (let clientId in clients) {
       if (clients[clientId].socket.id === socket.id) {
         clients[clientId].connected = true
-        console.log(`Client ${clientId} reconnected`)
+        console.log(`重连到服务端的客户端的id是 ${clientId}`)
         break
       }
     }
