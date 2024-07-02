@@ -61,7 +61,7 @@ app.get("/startPrint", express.json(), (req, res) => {
   if (targetClient) {
     // 且客户端在线
     if (targetClient.connected) {
-      // 收到客户端的消息后再返回给客户端
+      // 收到消息后再返回给客户端
       targetClient.socket.emit('print', {printData})
       res.send({ message: "参数已接收" })
     } else {
